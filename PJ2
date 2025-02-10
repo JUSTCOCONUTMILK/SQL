@@ -1,0 +1,87 @@
+CREATE DATABASE ShopDB;
+USE ShopDB;
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Email VARCHAR(100)
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10, 2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY,
+    ProductName VARCHAR(100),
+    Price DECIMAL(10, 2)
+);
+
+CREATE TABLE OrderDetails (
+    OrderDetailID INT PRIMARY KEY,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    Price DECIMAL(10, 2),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+INSERT INTO Customers (CustomerID, FirstName, LastName, Email) 
+VALUES (1, 'Иван', 'Иванов', 'ivan@example.com'),
+       (2, 'Петр', 'Петров', 'petr@example.com'),
+       (3, 'Мария', 'Сидорова', 'maria@example.com');
+
+UPDATE Customers SET Email = 'ivan.ivanov@example.com' WHERE CustomerID = 1;
+
+DELETE FROM Customers WHERE CustomerID = 5;
+
+SELECT * FROM Customers ORDER BY LastName;
+
+INSERT INTO Orders (OrderID, CustomerID, OrderDate, TotalAmount) 
+VALUES (1, 1, '2023-06-15', 500.00),
+       (2, 2, '2023-07-20', 1200.00);
+
+UPDATE Orders SET TotalAmount = 1500.00 WHERE OrderID = 2;
+
+DELETE FROM Orders WHERE OrderID = 3;
+
+SELECT * FROM Orders WHERE CustomerID = 1;
+
+INSERT INTO Products (ProductID, ProductName, Price) 
+VALUES (1, 'Ноутбук', 800.00),
+       (2, 'Мышь', 25.00),
+       (3, 'Клавиатура', 50.00);
+
+UPDATE Products SET Price = 30.00 WHERE ProductID = 2;
+
+SELECT * FROM Products WHERE Price > 100;
+
+INSERT INTO OrderDetails (OrderDetailID, OrderID, ProductID, Quantity, Price) 
+VALUES (1, 1, 1, 1, 800.00),
+       (2, 1, 2, 2, 30.00);
+
+UPDATE OrderDetails SET Quantity = 2 WHERE OrderDetailID = 1;
+
+SELECT Orders.OrderID, Customers.FirstName, Customers.LastName, Orders.TotalAmount 
+FROM Orders 
+INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID;
+
+SELECT Customers.FirstName, Customers.LastName, Products.ProductName, OrderDetails.Quantity 
+FROM OrderDetails 
+INNER JOIN Orders ON OrderDetails.OrderID = Orders.OrderID 
+INNER JOIN Customers ON Orders.CustomerID = Customers.CustomerID 
+INNER JOIN Products ON OrderDetails.ProductID = Products.ProductID;
+
+SELECT Customers.CustomerID, Customers.FirstName, Customers.LastName, Orders.OrderID 
+FROM Customers 
+LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID;
+
+SELECT FirstName, LastName FROM Customers 
+WHERE CustomerID IN (SELECT CustomerID FROM Orders WHERE TotalAmount > 500);
+
